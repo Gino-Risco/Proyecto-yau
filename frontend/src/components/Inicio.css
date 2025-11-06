@@ -1,0 +1,43 @@
+/* Fondo con imagen municipal */
+.inicio-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.hero-section .overlay {
+  background: rgba(46, 105, 199, 0.65);
+  padding: 5rem 1rem;
+}
+
+/* Tarjetas */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  border-radius: 1rem;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Iconos */
+.icon-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Fondo general */
+.inicio-container {
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Animaciones (usando Animate.css opcionalmente) */
+@import 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';

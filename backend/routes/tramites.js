@@ -8,7 +8,29 @@ const { crearTramite, obtenerTramitesPorDNI, actualizarEstado } = require('../co
 router.post('/', upload.single('documento'), crearTramite);
 
 // Ciudadano: consultar por DNI
-router.get('/dni/:dni', obtenerTramitesPorDNI);
+// GET /api/tramites/dni/:dni → devuelve los trámites de un ciudadano por DNI
+router.get('/dni/:dni', async (req, res) => {
+  const { dni } = req.params;
+  if (!dni || dni.length !== 8) {
+    return res.status(400).json({ error: 'DNI válido requerido' });
+  }
+
+  try {
+    const [rows] = await db.execute(`
+      SELECT t.id, tt.nombre AS tipo_tramite, t.prioridad, t.estado, t.fecha_ingreso, t.observaciones
+      FROM tramites t
+      JOIN ciudadanos c ON t.ciudadano_id = c.id
+      JOIN tipos_tramite tt ON t.tipo_tramite_id = tt.id
+      WHERE c.dni = ?
+      ORDER BY t.fecha_ingreso DESC
+    `, [dni]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al consultar trámites' });
+  }
+});
 
 // Administrativo: listar todos los trámites
 router.get('/', async (req, res) => {
@@ -17,10 +39,12 @@ router.get('/', async (req, res) => {
       SELECT 
         t.id, 
         c.dni, 
+        c.nombre_completo, 
         tt.nombre AS tipo_tramite, 
         t.prioridad, 
         t.estado, 
-        t.fecha_ingreso
+        t.fecha_ingreso,
+        t.observaciones 
       FROM tramites t
       JOIN ciudadanos c ON t.ciudadano_id = c.id
       JOIN tipos_tramite tt ON t.tipo_tramite_id = tt.id
@@ -40,15 +64,15 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await db.execute(`
-      SELECT 
-        t.id,
-        c.dni,
-        tt.nombre AS tipo_tramite,
-        t.prioridad,
-        t.estado,
-        t.fecha_ingreso,
-        t.fecha_actualizacion,
-        t.archivo_original,
+ SELECT 
+        t.id, 
+        c.dni, 
+        tt.nombre AS tipo_tramite, 
+        t.prioridad, 
+        t.estado, 
+        t.fecha_ingreso, 
+        t.archivo_original, 
+        t.observaciones,
         t.contenido_texto
       FROM tramites t
       JOIN ciudadanos c ON t.ciudadano_id = c.id

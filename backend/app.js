@@ -2,6 +2,10 @@
 const express = require('express');
 const cors = require('cors');
 const tramitesRoutes = require('./routes/tramites');
+const dashboardRoutes = require('./routes/dashboard');
+const reportesRoutes = require('./routes/reportes');
+
+
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +20,8 @@ if (!fs.existsSync('uploads')) {
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
+app.use('/api', dashboardRoutes);
+app.use('/api/reportes', reportesRoutes);
 
 app.use('/api/tramites', tramitesRoutes);
 

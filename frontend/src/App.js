@@ -14,6 +14,8 @@ import Footer from './components/Footer';
 // Componentes del Sistema Administrativo
 import LayoutAdmin from './components/SistemaAdministrativo/LayoutAdmin';
 import ListaTramites from './components/SistemaAdministrativo/ListaTramites';
+import Dashboard from './components/SistemaAdministrativo/Dashboard';
+import Reportes from './components/SistemaAdministrativo/Reportes';
 import DetalleTramite from './components/SistemaAdministrativo/DetalleTramite'; // ✅ Importa el nuevo componente
 
 
@@ -30,11 +32,13 @@ function App() {
 
         {/* Sistema Administrativo */}
         <Route path="/admin" element={<LayoutAdmin />}>
-          <Route index element={<ListaTramites />} />
+          <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="tramites" element={<ListaTramites />} />
-          <Route path="tramites/:id" element={<DetalleTramite />} /> {/* ✅ Nueva ruta para detalle de trámite */}
-          <Route path="/admin/tramites/:id" element={<DetalleTramite />} />
+          <Route path="reportes" element={<Reportes />} />
+          <Route path="tramites/:id" element={<DetalleTramite />} />
         </Route>
+
       </Routes>
     </Router>
   );

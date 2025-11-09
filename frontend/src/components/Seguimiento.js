@@ -1,15 +1,18 @@
 // src/components/Seguimiento.js
 import React, { useState } from 'react';
+import { Card, Button, Alert, Spinner, Modal } from 'react-bootstrap';
 
 export default function Seguimiento() {
   const [dni, setDni] = useState('');
   const [tramites, setTramites] = useState([]);
   const [mensaje, setMensaje] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [tramiteActual, setTramiteActual] = useState(null);
 
   const handleConsultar = async () => {
     if (dni.length !== 8) {
-      setMensaje('⚠️ Ingrese un DNI válido de 8 dígitos.');
+      setMensaje('⚠️ Ingrese un DNI válido (8 dígitos).');
       return;
     }
 
@@ -36,14 +39,15 @@ export default function Seguimiento() {
     }
   };
 
-  const prioridadBadge = (prioridad) => {
-    const bg = { alta: 'danger', media: 'warning', baja: 'info' }[prioridad] || 'secondary';
-    return <span className={`badge bg-${bg} ms-2`}>{prioridad}</span>;
-  };
-
-  const estadoBadge = (estado) => {
-    const bg = { recibido: 'secondary', en_proceso: 'primary', resuelto: 'success', rechazado: 'danger' }[estado] || 'secondary';
-    return <span className={`badge bg-${bg} ms-2`}>{estado}</span>;
+  const abrirDetalle = async (tramite) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/tramites/${tramite.id}`);
+      const data = await res.json();
+      setTramiteActual(data);
+      setShowModal(true);
+    } catch (error) {
+      setMensaje('❌ Error al cargar el detalle del trámite');
+    }
   };
 
   return (
@@ -53,41 +57,124 @@ export default function Seguimiento() {
       </div>
       <div className="card-body">
         <div className="mb-3">
-          <label className="form-label">Ingrese su DNI (8 dígitos)</label>
+          <label htmlFor="dniConsulta" className="form-label">Ingrese su DNI (8 dígitos)</label>
           <input
             type="text"
             className="form-control"
+            id="dniConsulta"
             value={dni}
             onChange={(e) => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
             maxLength={8}
           />
         </div>
-        <button
+
+        <Button
           className="btn btn-success w-100 mb-3"
           onClick={handleConsultar}
           disabled={cargando}
         >
           {cargando ? 'Consultando...' : 'Consultar Trámites'}
-        </button>
+        </Button>
 
-        {mensaje && <div className="alert alert-info">{mensaje}</div>}
+        {mensaje && <Alert className="mt-3">{mensaje}</Alert>}
 
         {tramites.length > 0 && (
           <div>
-            <h6 className="mt-3">📋 Trámites encontrados:</h6>
-            <div className="list-group">
+            <h6>📋 Trámites encontrados:</h6>
+            <div className="row g-3">
               {tramites.map((t) => (
-                <div key={t.id} className="list-group-item">
-                  <strong>ID:</strong> {t.id} • <strong>Tipo:</strong> {t.tipo_tramite}
-                  {prioridadBadge(t.prioridad)}
-                  {estadoBadge(t.estado)}
-                  <br />
-                  <small className="text-muted">{new Date(t.fecha_ingreso).toLocaleString()}</small>
+                <div key={t.id} className="col-md-6">
+                  <Card
+                    className="shadow-sm h-100"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => abrirDetalle(t)}
+                  >
+                    <Card.Body>
+                      <strong>ID:</strong> {t.id} • <strong>Tipo:</strong> {t.tipo_tramite}
+                      <br />
+                      <span className={`badge bg-${t.prioridad === 'alta' ? 'danger' : t.prioridad === 'media' ? 'warning' : 'info'} me-2`}>
+                        {t.prioridad}
+                      </span>
+                      <span className={`badge bg-${t.estado === 'recibido' ? 'secondary' : t.estado === 'en_proceso' ? 'primary' : t.estado === 'resuelto' ? 'success' : 'danger'}`}>
+                        {t.estado}
+                      </span>
+                      <br />
+                      <small className="text-muted">{new Date(t.fecha_ingreso).toLocaleString()}</small>
+                    </Card.Body>
+                  </Card>
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Modal de detalle */}
+        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+          <Modal.Header closeButton>
+            <Modal.Title>📋 Detalle del Trámite #{tramiteActual?.id}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {tramiteActual && (
+              <>
+                <p><strong>DNI:</strong> {tramiteActual.dni}</p>
+                <p><strong>Tipo de Trámite:</strong> {tramiteActual.tipo_tramite}</p>
+                <p><strong>Prioridad:</strong> <span className={`badge bg-${tramiteActual.prioridad === 'alta' ? 'danger' : tramiteActual.prioridad === 'media' ? 'warning' : 'info'}`}>{tramiteActual.prioridad}</span></p>
+                <p><strong>Estado:</strong> <span className={`badge bg-${tramiteActual.estado === 'recibido' ? 'secondary' : tramiteActual.estado === 'en_proceso' ? 'primary' : tramiteActual.estado === 'resuelto' ? 'success' : 'danger'}`}>{tramiteActual.estado}</span></p>
+                <p><strong>Fecha de ingreso:</strong> {new Date(tramiteActual.fecha_ingreso).toLocaleString()}</p>
+
+                {tramiteActual?.observaciones && (
+                  <div className="mt-3 p-3 bg-light rounded">
+                    <strong>Observaciones del funcionario:</strong>
+                    <p>{tramiteActual.observaciones}</p>
+                  </div>
+                )}
+                
+                {/* Documento original */}
+                <div className="mt-4">
+                  <h6>📄 Documento Original</h6>
+                  {tramiteActual.archivo_original ? (
+                    tramiteActual.archivo_original.endsWith('.pdf') ? (
+                      <iframe
+                        src={`/uploads/${tramiteActual.archivo_original}`}
+                        width="100%"
+                        height="400px"
+                        title="Documento PDF"
+                      />
+                    ) : tramiteActual.archivo_original.endsWith('.txt') ? (
+                      <div className="p-3 bg-light rounded">
+                        <pre style={{ whiteSpace: 'pre-wrap', background: '#f8f9fa', padding: '1rem', borderRadius: '5px' }}>
+                          {tramiteActual.contenido_texto}
+                        </pre>
+                      </div>
+                    ) : (
+                      <img
+                        src={`http://localhost:3000/uploads/${tramiteActual.archivo_original}`}
+                        alt="Documento"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '600px',
+                          objectFit: 'contain',
+                          borderRadius: '8px',
+                          border: '1px solid #ddd'
+                        }}
+                      />
+
+                    )
+                  ) : (
+                    <p className="text-muted">No hay documento adjunto. Trámite ingresado por texto.</p>
+                  )}
+                </div>
+
+
+              </>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Cerrar
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );

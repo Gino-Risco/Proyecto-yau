@@ -6,7 +6,7 @@ import spacy
 
 app = Flask(__name__)
 
-# Cargar modelos (asegúrate de que los .pkl están en la misma carpeta)
+# Cargar modelos 
 modelo_tipo = joblib.load("modelo_clasificacion_tramites.pkl")
 modelo_prioridad = joblib.load("modelo_priorizacion.pkl")
 vectorizer_tipo = joblib.load("vectorizer_tipo.pkl")

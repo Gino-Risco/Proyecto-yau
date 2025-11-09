@@ -1,6 +1,7 @@
 // src/components/FormularioTramite.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function FormularioTramite() {
   const [formData, setFormData] = useState({
@@ -34,7 +35,9 @@ export default function FormularioTramite() {
 
     const backendData = new FormData();
     backendData.append('dni', formData.dni);
-    // En producción, guardarías también nombre/email/telefono en la BD
+    backendData.append('nombre', formData.nombre);
+    backendData.append('email', formData.email);
+    backendData.append('telefono', formData.telefono);
 
     if (tipoEntrada === 'texto') {
       if (!textoSolicitud.trim()) {
@@ -42,7 +45,6 @@ export default function FormularioTramite() {
         setCargando(false);
         return;
       }
-      // Guardar como archivo temporal de texto
       const blob = new Blob([textoSolicitud], { type: 'text/plain' });
       backendData.append('documento', blob, 'solicitud.txt');
     } else {
@@ -62,9 +64,16 @@ export default function FormularioTramite() {
 
       const data = await res.json();
       if (res.ok) {
-        setMensaje(`✅ ¡Trámite registrado exitosamente!\nID: ${data.id}\nTipo: ${data.tipo_tramite}\nPrioridad: ${data.prioridad}\nEstado: ${data.estado}`);
-        // Opcional: redirigir a seguimiento
-        // setTimeout(() => navigate('/seguimiento'), 3000);
+        Swal.fire({
+          title: '¡Trámite registrado!',
+          text: `ID: ${data.id}\nEstado: ${data.estado}\n\nPuede consultar el estado de su trámite en cualquier momento ingresando su DNI.`,
+          icon: 'success',
+          confirmButtonText: 'Aceptar'
+        });
+        // Opcional: limpiar el formulario
+        setFormData({ nombre: '', dni: '', email: '', telefono: '' });
+        setTextoSolicitud('');
+        setArchivo(null);
       } else {
         setMensaje(`❌ Error: ${data.error || 'No se pudo enviar el trámite'}`);
       }

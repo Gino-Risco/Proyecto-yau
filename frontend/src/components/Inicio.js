@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Inicio.css'; // ✅ Importa los estilos
+import './Inicio.css'; 
 
 export default function Inicio() {
   return (

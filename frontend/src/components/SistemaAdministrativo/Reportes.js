@@ -1,6 +1,6 @@
 // src/components/SistemaAdministrativo/Reportes.js
-import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Form, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Row, Col, Card, Form, Button, Table } from 'react-bootstrap';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -8,42 +8,51 @@ export default function Reportes() {
     const [tipo, setTipo] = useState('productividad');
     const [fechaInicio, setFechaInicio] = useState('');
     const [fechaFin, setFechaFin] = useState('');
-    const [datos, setDatos] = useState(null);
+    const [datos, setDatos] = useState({}); // Inicializamos como objeto vacío
 
     const cargarReporte = async () => {
-        const params = new URLSearchParams();
-        if (fechaInicio) params.append('fechaInicio', fechaInicio);
-        if (fechaFin) params.append('fechaFin', fechaFin);
+        try {
+            const params = new URLSearchParams();
+            if (fechaInicio) params.append('fechaInicio', fechaInicio);
+            if (fechaFin) params.append('fechaFin', fechaFin);
 
-        const res = await fetch(`http://localhost:3000/api/reportes/${tipo}?${params}`);
-        const data = await res.json();
-        setDatos(data);
+            const res = await fetch(`http://localhost:3000/api/reportes/${tipo}?${params}`);
+            const data = await res.json();
+            setDatos(data || {}); // Seguridad ante respuestas vacías
+        } catch (error) {
+            console.error('Error al cargar reporte:', error);
+            setDatos({});
+        }
     };
 
     const exportarPDF = () => {
         const doc = new jsPDF();
         doc.setFontSize(18);
-        doc.text('Reporte de Productividad', 14, 20);
+        doc.text('Reporte de Gestión', 14, 20);
         doc.setFontSize(12);
         doc.text(`Periodo: ${fechaInicio || 'Inicio'} - ${fechaFin || 'Hoy'}`, 14, 30);
 
-        const tabla = [
-            ['Métrica', 'Valor'],
-            ['Trámites recibidos', datos.recibidos],
-            ['Trámites resueltos', datos.resueltos],
-            ['Tiempo promedio (días)', datos.promedioDias],
-            ['Trámites vencidos', datos.vencidos]
-        ];
+        if (tipo === 'productividad') {
+            const tabla = [
+                ['Métrica', 'Valor'],
+                ['Trámites recibidos', datos.recibidos || 0],
+                ['Trámites resueltos', datos.resueltos || 0],
+                ['Tiempo promedio (días)', datos.diasPromedio || 0],
+                ['Trámites vencidos', datos.vencidos || 0],
+            ];
 
-        autoTable(doc, {
-            head: [tabla[0]],
-            body: tabla.slice(1),
-            startY: 40,
-        });
-
+            autoTable(doc, {
+                head: [tabla[0]],
+                body: tabla.slice(1),
+                startY: 40,
+            });
+        }
 
         doc.save(`reporte_${tipo}_${new Date().toISOString().slice(0, 10)}.pdf`);
     };
+
+    // Para el reporte tipo "tipo de trámite" aseguramos un array
+    const datosTipo = Array.isArray(datos) ? datos : datos?.data || [];
 
     return (
         <div>
@@ -85,7 +94,7 @@ export default function Reportes() {
                 </Card.Body>
             </Card>
 
-            {datos && (
+            {datos && Object.keys(datos).length > 0 && (
                 <Card>
                     <Card.Header>
                         <div className="d-flex justify-content-between align-items-center">
@@ -96,32 +105,122 @@ export default function Reportes() {
                         </div>
                     </Card.Header>
                     <Card.Body>
-                        <Row>
-                            <Col md={3}>
-                                <div className="text-center p-3 border rounded">
-                                    <h5>{datos.recibidos}</h5>
-                                    <p>Trámites recibidos</p>
-                                </div>
-                            </Col>
-                            <Col md={3}>
-                                <div className="text-center p-3 border rounded">
-                                    <h5 className="text-success">{datos.resueltos}</h5>
-                                    <p>Resueltos</p>
-                                </div>
-                            </Col>
-                            <Col md={3}>
-                                <div className="text-center p-3 border rounded">
-                                    <h5>{datos.promedioDias}</h5>
-                                    <p>Días promedio</p>
-                                </div>
-                            </Col>
-                            <Col md={3}>
-                                <div className="text-center p-3 border rounded">
-                                    <h5 className="text-danger">{datos.vencidos}</h5>
-                                    <p>Vencidos</p>
-                                </div>
-                            </Col>
-                        </Row>
+                        {/* Reporte 1: Productividad */}
+                        {tipo === 'productividad' && (
+                            <Row>
+                                <Col md={3}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5>{datos.recibidos || 0}</h5>
+                                        <p>Trámites recibidos</p>
+                                    </div>
+                                </Col>
+                                <Col md={3}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5 className="text-success">{datos.resueltos || 0}</h5>
+                                        <p>Resueltos</p>
+                                    </div>
+                                </Col>
+                                <Col md={3}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5>{datos.diasPromedio || 0}</h5>
+                                        <p>Días promedio</p>
+                                    </div>
+                                </Col>
+                                <Col md={3}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5 className="text-danger">{datos.vencidos || 0}</h5>
+                                        <p>Vencidos</p>
+                                    </div>
+                                </Col>
+                            </Row>
+                        )}
+
+                        {/* Reporte 2: Por Tipo de Trámite */}
+                        {tipo === 'tipo' && (
+                            <div>
+                                <h6 className="mb-3">Distribución por tipo de trámite</h6>
+                                <Table striped bordered hover size="sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo de Trámite</th>
+                                            <th>Cantidad</th>
+                                            <th>Rechazados</th>
+                                            <th>% Rechazo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {datosTipo.map((item, i) => (
+                                            <tr key={i}>
+                                                <td>{item.tipo}</td>
+                                                <td>{item.cantidad}</td>
+                                                <td className="text-danger">{item.rechazados}</td>
+                                                <td>{item.porcentajeRechazo}%</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        )}
+
+                        {/* Reporte 3: Trámites Críticos */}
+                        {tipo === 'criticos' && (
+                            <Row>
+                                <Col md={4}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5 className="text-warning">{datos.totalCriticos || 0}</h5>
+                                        <p>Críticos recibidos</p>
+                                    </div>
+                                </Col>
+                                <Col md={4}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5 className="text-success">{datos.resueltosEn48h || 0}</h5>
+                                        <p>Resueltos en 48h</p>
+                                    </div>
+                                </Col>
+                                <Col md={4}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5 className="text-danger">{datos.pendientesCriticos || 0}</h5>
+                                        <p>Pendientes 3 días</p>
+                                    </div>
+                                </Col>
+                            </Row>
+                        )}
+
+                        {/* Reporte 4: Indicadores de Calidad */}
+                        {tipo === 'calidad' && (
+                            <Row>
+                                <Col md={4}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5>{datos.reingresados || 0}</h5>
+                                        <p>Trámites reingresados</p>
+                                    </div>
+                                </Col>
+                                <Col md={4}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5>{datos.porcentajeConObservaciones || 0}%</h5>
+                                        <p>Con observaciones</p>
+                                    </div>
+                                </Col>
+                                <Col md={4}>
+                                    <div className="text-center p-3 border rounded">
+                                        <h5>{datos.observacionesNegativas?.length || 0}</h5>
+                                        <p>Motivos frecuentes</p>
+                                    </div>
+                                </Col>
+                                {datos.observacionesNegativas?.length > 0 && (
+                                    <Col md={12} className="mt-3">
+                                        <h6>Motivos frecuentes de rechazo:</h6>
+                                        <ul>
+                                            {datos.observacionesNegativas.map((obs, i) => (
+                                                <li key={i}>
+                                                    <strong>{obs.motivo}</strong>: {obs.cantidad} veces
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Col>
+                                )}
+                            </Row>
+                        )}
                     </Card.Body>
                 </Card>
             )}

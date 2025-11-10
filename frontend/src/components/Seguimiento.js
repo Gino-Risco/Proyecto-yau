@@ -1,6 +1,7 @@
 // src/components/Seguimiento.js
 import React, { useState } from 'react';
-import { Card, Button, Alert, Spinner, Modal } from 'react-bootstrap';
+import { Card, Button, Alert, Spinner, Modal, Badge } from 'react-bootstrap';
+
 
 export default function Seguimiento() {
   const [dni, setDni] = useState('');
@@ -110,27 +111,49 @@ export default function Seguimiento() {
 
         {/* Modal de detalle */}
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
-          <Modal.Header closeButton>
-            <Modal.Title>📋 Detalle del Trámite #{tramiteActual?.id}</Modal.Title>
+          <Modal.Header closeButton className="bg-primary text-white">
+            <Modal.Title className="mx-auto">📋 Detalle del Trámite #{tramiteActual?.id}</Modal.Title>
           </Modal.Header>
+
           <Modal.Body>
             {tramiteActual && (
-              <>
-                <p><strong>DNI:</strong> {tramiteActual.dni}</p>
-                <p><strong>Tipo de Trámite:</strong> {tramiteActual.tipo_tramite}</p>
-                <p><strong>Prioridad:</strong> <span className={`badge bg-${tramiteActual.prioridad === 'alta' ? 'danger' : tramiteActual.prioridad === 'media' ? 'warning' : 'info'}`}>{tramiteActual.prioridad}</span></p>
-                <p><strong>Estado:</strong> <span className={`badge bg-${tramiteActual.estado === 'recibido' ? 'secondary' : tramiteActual.estado === 'en_proceso' ? 'primary' : tramiteActual.estado === 'resuelto' ? 'success' : 'danger'}`}>{tramiteActual.estado}</span></p>
-                <p><strong>Fecha de ingreso:</strong> {new Date(tramiteActual.fecha_ingreso).toLocaleString()}</p>
+              <div className="d-flex flex-column gap-4 align-items-center">
 
+                {/* Datos principales */}
+                <div className="p-4 bg-light rounded shadow-sm w-100" style={{ maxWidth: '600px' }}>
+                  <p><strong>DNI:</strong> {tramiteActual.dni}</p>
+                  <p><strong>Tipo de Trámite:</strong> {tramiteActual.tipo_tramite}</p>
+                  <p>
+                    <strong>Prioridad:</strong>{' '}
+                    <Badge
+                      pill
+                      bg={tramiteActual.prioridad === 'alta' ? 'danger' : tramiteActual.prioridad === 'media' ? 'warning' : 'info'}
+                    >
+                      {tramiteActual.prioridad}
+                    </Badge>
+                  </p>
+                  <p>
+                    <strong>Estado:</strong>{' '}
+                    <Badge
+                      pill
+                      bg={tramiteActual.estado === 'recibido' ? 'secondary' : tramiteActual.estado === 'en_proceso' ? 'primary' : tramiteActual.estado === 'resuelto' ? 'success' : 'danger'}
+                    >
+                      {tramiteActual.estado}
+                    </Badge>
+                  </p>
+                  <p><strong>Fecha de ingreso:</strong> {new Date(tramiteActual.fecha_ingreso).toLocaleString()}</p>
+                </div>
+
+                {/* Observaciones */}
                 {tramiteActual?.observaciones && (
-                  <div className="mt-3 p-3 bg-light rounded">
+                  <div className="p-3 bg-light rounded border-start border-4 border-primary shadow-sm w-100" style={{ maxWidth: '600px' }}>
                     <strong>Observaciones del funcionario:</strong>
-                    <p>{tramiteActual.observaciones}</p>
+                    <p className="mb-0">{tramiteActual.observaciones}</p>
                   </div>
                 )}
-                
+
                 {/* Documento original */}
-                <div className="mt-4">
+                <div className="p-3 bg-white rounded shadow-sm border w-100" style={{ maxWidth: '600px' }}>
                   <h6>📄 Documento Original</h6>
                   {tramiteActual.archivo_original ? (
                     tramiteActual.archivo_original.endsWith('.pdf') ? (
@@ -139,9 +162,10 @@ export default function Seguimiento() {
                         width="100%"
                         height="400px"
                         title="Documento PDF"
+                        style={{ border: '1px solid #ccc', borderRadius: '6px' }}
                       />
                     ) : tramiteActual.archivo_original.endsWith('.txt') ? (
-                      <div className="p-3 bg-light rounded">
+                      <div className="p-3 bg-light rounded" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                         <pre style={{ whiteSpace: 'pre-wrap', background: '#f8f9fa', padding: '1rem', borderRadius: '5px' }}>
                           {tramiteActual.contenido_texto}
                         </pre>
@@ -150,31 +174,31 @@ export default function Seguimiento() {
                       <img
                         src={`http://localhost:3000/uploads/${tramiteActual.archivo_original}`}
                         alt="Documento"
+                        className="d-block mx-auto"
+
                         style={{
                           maxWidth: '100%',
-                          maxHeight: '600px',
+                          maxHeight: '400px',
                           objectFit: 'contain',
                           borderRadius: '8px',
                           border: '1px solid #ddd'
                         }}
                       />
-
                     )
                   ) : (
                     <p className="text-muted">No hay documento adjunto. Trámite ingresado por texto.</p>
                   )}
                 </div>
 
-
-              </>
+              </div>
             )}
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Cerrar
-            </Button>
+
+          <Modal.Footer className="justify-content-center">
+            <Button variant="primary" onClick={() => setShowModal(false)}>Cerrar</Button>
           </Modal.Footer>
         </Modal>
+
       </div>
     </div>
   );

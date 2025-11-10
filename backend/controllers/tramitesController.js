@@ -139,19 +139,52 @@ exports.crearTramite = async (req, res) => {
       return res.status(400).json({ error: 'Documento y DNI (8 dígitos) son obligatorios' });
     }
 
-    // OCR
+    // ===== OCR (IMAGEN O PDF) =====
+    console.log('🔍 Extrayendo texto con Tesseract OCR...');
+    let textoOCR = '';
+
     const worker = await getTesseractWorker();
-    const { data: { text } } = await worker.recognize(archivo.path);
-    const textoOCR = text.trim();
+
+    if (archivo.mimetype === 'application/pdf') {
+      // ✅ Manejar PDF
+      console.log('📄 Archivo PDF detectado. Convirtiendo a imagen...');
+      try {
+        const { fromPath } = require('pdf2pic');
+
+        const options = {
+          density: 300,
+          savePath: './uploads',
+          saveFilename: archivo.filename.replace(/\.[^/.]+$/, ''), // sin extensión
+          format: 'png',
+          width: 2000,
+          height: 2500
+        };
+
+        const convert = fromPath(archivo.path, options);
+        const result = await convert(1); // Convierte solo la primera página
+        const imagePath = result.path;
+
+        const { data: { text } } = await worker.recognize(imagePath);
+        textoOCR = text.trim();
+      } catch (pdfError) {
+        console.error('❌ Error al convertir PDF:', pdfError.message);
+        return res.status(400).json({ error: 'No se pudo procesar el archivo PDF' });
+      }
+    } else {
+      // ✅ Manejar imagen directamente
+      const { data: { text } } = await worker.recognize(archivo.path);
+      textoOCR = text.trim();
+    }
+
     if (!textoOCR || textoOCR.length < 10) {
       return res.status(400).json({ error: 'No se pudo extraer texto del documento' });
     }
 
-    // ML
+    // ===== ML =====
     const mlResponse = await axios.post('http://127.0.0.1:5000/predecir', { texto: textoOCR });
     const { tipo_tramite, prioridad } = mlResponse.data;
 
-    // Guardar
+    // ===== GUARDAR EN BD =====
     const ciudadano_id = await obtenerOcrearCiudadano(dni, nombre, email, telefono);
     const tipo_tramite_id = await obtenerTipoTramiteId(tipo_tramite);
     const [result] = await db.execute(

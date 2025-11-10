@@ -16,6 +16,7 @@ import LayoutAdmin from './components/SistemaAdministrativo/LayoutAdmin';
 import ListaTramites from './components/SistemaAdministrativo/ListaTramites';
 import Dashboard from './components/SistemaAdministrativo/Dashboard';
 import Reportes from './components/SistemaAdministrativo/Reportes';
+
 import DetalleTramite from './components/SistemaAdministrativo/DetalleTramite'; // ✅ Importa el nuevo componente
 
 

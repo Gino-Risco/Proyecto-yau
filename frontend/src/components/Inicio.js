@@ -1,62 +1,135 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './Inicio.css'; 
+import { Link } from "react-router-dom";
 
 export default function Inicio() {
-  return (
-    <div className="inicio-container">
-      {/* Sección principal con fondo */}
-      <section className="hero-section text-center text-white py-5">
-        <div className="overlay">
-          <div className="container">
-            <h1 className="fw-bold display-5 mb-3 animate__animated animate__fadeInDown">
-              Municipalidad Provincial de Yau
-            </h1>
-            <p className="lead fst-italic mb-4 animate__animated animate__fadeInUp">
-              “Comprometidos con la atención digital y transparente para todos los ciudadanos.”
-            </p>
-          </div>
-        </div>
-      </section>
+  const containerStyle = {
+    position: "relative",
+    minHeight: "80vh",
+    background: "url('/images/municipalidad.png') no-repeat center center/cover",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    textAlign: "center",
+  };
 
-      {/* Opciones de usuario */}
-      <section className="tramites-section container py-5">
+  const overlayStyle = {
+    position: "absolute",
+    inset: 0,
+    background: "rgba(0, 0, 0, 0.55)",
+    zIndex: 1,
+  };
+
+  const contentStyle = {
+    position: "relative",
+    zIndex: 2,
+    maxWidth: "900px",
+  };
+
+  // Tarjeta semitransparente
+  const cardStyle = {
+    borderRadius: "1rem",
+    background: "rgba(255, 255, 255, 0.60)",
+    backdropFilter: "blur(1px)",
+    transition: "transform 0.25s ease, box-shadow 0.25s ease",
+  };
+
+  const hoverStyle = {
+    transform: "translateY(-6px)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
+  };
+
+  const iconCircleStyle = (color, bg) => ({
+    width: "70px",
+    height: "70px",
+    borderRadius: "50%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: bg,
+    color: color,
+    marginBottom: "1rem",
+  });
+
+  return (
+    <div style={containerStyle}>
+      <div style={overlayStyle}></div>
+
+      <div style={contentStyle} className="container">
+        {/* Mensaje de bienvenida */}
+        <div className="mb-5">
+          <h2 className="fw-bold mb-3 display-6">Bienvenido al Portal del Ciudadano</h2>
+          <p className="fs-5 text-light">
+            Acceda fácilmente a los servicios digitales de la Municipalidad.
+          </p>
+        </div>
+
+        {/* Tarjetas */}
         <div className="row g-4 justify-content-center">
+          {/* --- TARJETA 1 --- */}
           <div className="col-md-5">
-            <div className="card shadow-sm text-center h-100 card-hover">
+            <div
+              className="card text-center h-100 border-0 shadow-lg"
+              style={cardStyle}
+              onMouseEnter={(e) =>
+                Object.assign(e.currentTarget.style, hoverStyle)
+              }
+              onMouseLeave={(e) =>
+                Object.assign(e.currentTarget.style, cardStyle)
+              }
+            >
               <div className="card-body d-flex flex-column align-items-center">
-                <div className="icon-circle bg-primary bg-opacity-10 text-primary mb-3">
+                <div
+                  style={iconCircleStyle("rgb(13,110,253)", "rgba(13,110,253,0.1)")}
+                >
                   <i className="bi bi-upload fs-2"></i>
                 </div>
                 <h5 className="fw-bold text-primary">Presentar un Trámite</h5>
                 <p className="text-muted mt-2">
-                  Envíe su solicitud digitalmente. Puede escribirla o adjuntar un documento (PDF, JPG, PNG).
+                  Envíe su solicitud digitalmente. Puede escribirla o adjuntar documentos.
                 </p>
-                <Link to="/tramite" className="btn btn-primary mt-auto px-4 rounded-pill">
+                <Link
+                  to="/tramite"
+                  className="btn btn-primary mt-auto px-4 rounded-pill"
+                >
                   Iniciar Trámite
                 </Link>
               </div>
             </div>
           </div>
 
+          {/* --- TARJETA 2 --- */}
           <div className="col-md-5">
-            <div className="card shadow-sm text-center h-100 card-hover">
+            <div
+              className="card text-center h-100 border-0 shadow-lg"
+              style={cardStyle}
+              onMouseEnter={(e) =>
+                Object.assign(e.currentTarget.style, hoverStyle)
+              }
+              onMouseLeave={(e) =>
+                Object.assign(e.currentTarget.style, cardStyle)
+              }
+            >
               <div className="card-body d-flex flex-column align-items-center">
-                <div className="icon-circle bg-success bg-opacity-10 text-success mb-3">
+                <div
+                  style={iconCircleStyle("rgb(25,135,84)", "rgba(25,135,84,0.1)")}
+                >
                   <i className="bi bi-search fs-2"></i>
                 </div>
                 <h5 className="fw-bold text-success">Consultar Trámite</h5>
                 <p className="text-muted mt-2">
-                  Ingrese su DNI para conocer el estado actual de sus trámites en curso o resueltos.
+                  Ingrese su DNI para conocer el estado actual de sus trámites.
                 </p>
-                <Link to="/seguimiento" className="btn btn-success mt-auto px-4 rounded-pill">
+                <Link
+                  to="/seguimiento"
+                  className="btn btn-success mt-auto px-4 rounded-pill"
+                >
                   Consultar
                 </Link>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

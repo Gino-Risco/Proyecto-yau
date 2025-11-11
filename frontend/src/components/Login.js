@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Form, Button, Alert, Container, Row, Col } from 'react-bootstrap';
+import './Login.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -30,46 +31,57 @@ export default function Login() {
       setError('Error de conexión con el servidor');
     }
   };
+ return (
+    <div className="login-container">
+      <div
+        className="login-left"
+        style={{
+          background: "url('/images/municipalidad.png') no-repeat center center/cover",
+        }}
+      >
+        <div className="overlay"></div>
+        <div className="login-text">
+          <h1> ¡Hola!</h1>
+          <h3>Bienvenido al sistema de gestión municipal</h3>
+          <p>Accede a tu cuenta para continuar con tus gestiones.</p>
+        </div>
+      </div>
 
-  return (
-    <Container fluid className="d-flex justify-content-center align-items-center" style={{ height: '100vh', background: '#f0f2f5' }}>
-      <Row>
-        <Col>
-          <Card className="shadow-lg p-4" style={{ maxWidth: '400px', minWidth: '300px', borderRadius: '12px' }}>
-            <Card.Body>
-              <h3 className="text-center mb-4">🔐 Iniciar Sesión</h3>
-              {error && <Alert variant="danger">{error}</Alert>}
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="email">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    placeholder="Ingrese su email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </Form.Group>
+      <div className="login-right">
+        <div className="login-card">
+          <h3>Iniciar Sesión</h3>
 
-                <Form.Group className="mb-4" controlId="password">
-                  <Form.Label>Contraseña</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Ingrese su contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </Form.Group>
+          {error && <Alert variant="danger">{error}</Alert>}
 
-                <Button type="submit" variant="primary" className="w-100 py-2">
-                  Ingresar
-                </Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Correo electrónico</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Ingrese su correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-4" controlId="password">
+              <Form.Label>Contraseña</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Ingrese su contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Button type="submit" variant="primary" className="btn-login">
+              Ingresar
+            </Button>
+          </Form>
+        </div>
+      </div>
+    </div>
   );
 }

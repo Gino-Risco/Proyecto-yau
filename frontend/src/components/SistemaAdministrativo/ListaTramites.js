@@ -93,7 +93,7 @@ export default function ListaTramites() {
 
   return (
     <div className="lista-tramites-container">
-      <h4 className="lista-tramites-title">📋 Gestión de Trámites</h4>
+      <h4 className="lista-tramites-title"> Gestión de Trámites</h4>
 
       {mensaje && <Alert variant="danger">{mensaje}</Alert>}
 

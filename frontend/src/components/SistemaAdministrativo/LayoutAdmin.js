@@ -2,7 +2,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
-import { FaHome, FaClipboardList, FaChartBar, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaClipboardList, FaChartBar, FaUser, FaSignOutAlt, FaBell, FaUserCircle } from 'react-icons/fa';
 
 export default function LayoutAdmin() {
   return (
@@ -22,7 +22,7 @@ export default function LayoutAdmin() {
         {/* Logo y título */}
         <div className="p-4 text-center border-bottom border-light">
           <img
-            src="/images/logo12.png" 
+            src="/images/logo12.png"
             alt="Logo"
             style={{
               width: "100px",
@@ -76,28 +76,113 @@ export default function LayoutAdmin() {
           overflowY: "auto",
         }}
       >
-        {/* Navbar superior */}
+        {/* Navbar superior mejorado con notificaciones */}
         <Navbar
           bg="white"
           variant="light"
-          className="shadow-sm position-fixed top-0 w-100"
+          expand="lg"
+          className="shadow-sm position-fixed top-0 w-100 px-3"
           style={{
-            zIndex: 999,
+            zIndex: 1000,
             left: "260px",
             width: "calc(100% - 260px)",
             borderBottom: "1px solid #eee",
-            backdropFilter: "blur(8px)",
           }}
         >
           <Container fluid className="d-flex justify-content-between align-items-center">
-            <Navbar.Brand href="/admin" className="fw-bold text-primary">
-              Municipalidad de Yau
-            </Navbar.Brand>
-            <Navbar.Text className="text-muted">
-              Bienvenido, <strong>Funcionario</strong>
-            </Navbar.Text>
+            {/* Marca y subtítulo */}
+            <div className="d-flex align-items-center">
+              <Navbar.Brand href="/admin" className="fw-bold text-primary fs-5 me-3">
+                Municipalidad de Yau
+              </Navbar.Brand>
+              <span className="text-muted d-none d-md-inline">
+                Sistema de Gestión Administrativa
+              </span>
+            </div>
+
+            {/* Acciones a la derecha */}
+            <div className="d-flex align-items-center gap-3">
+              {/* Dropdown de notificaciones */}
+              <div className="dropdown">
+                <Button
+                  variant="outline-primary"
+                  className="rounded-circle position-relative dropdown-toggle"
+                  id="dropdownNotificaciones"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  style={{ width: "40px", height: "40px" }}
+                >
+                  <FaBell />
+                  <span
+                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    style={{ fontSize: "0.65rem" }}
+                  >
+                    3
+                  </span>
+                </Button>
+
+                <ul
+                  className="dropdown-menu dropdown-menu-end shadow-sm"
+                  aria-labelledby="dropdownNotificaciones"
+                  style={{ width: "280px" }}
+                >
+                  <li className="dropdown-header fw-semibold text-center">
+                    🔔 Notificaciones recientes
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>
+                    <a className="dropdown-item small" href="#">
+                      📝 Nuevo trámite registrado por el ciudadano #1243
+                      <br />
+                      <small className="text-muted">Hace 5 minutos</small>
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item small" href="#">
+                      ⚙️ Usuario “admin” actualizó la base de datos
+                      <br />
+                      <small className="text-muted">Hace 30 minutos</small>
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item small" href="#">
+                      📊 Reporte semanal disponible
+                      <br />
+                      <small className="text-muted">Hace 2 horas</small>
+                    </a>
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li className="text-center">
+                    <a className="dropdown-item text-primary fw-semibold" href="#">
+                      Ver todas las notificaciones
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Perfil del usuario */}
+              <div className="d-flex align-items-center">
+                <img
+                  src="/images/user-avatar.png"
+                  alt="Usuario"
+                  className="rounded-circle me-2"
+                  style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                />
+                <div className="d-none d-md-block">
+                  <span className="fw-semibold text-dark d-block" style={{ lineHeight: "1" }}>
+                    Funcionario
+                  </span>
+                  <small className="text-muted">Administrador</small>
+                </div>
+              </div>
+            </div>
           </Container>
         </Navbar>
+
 
         {/* Contenido desplazable */}
         <Container

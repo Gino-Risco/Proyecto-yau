@@ -146,7 +146,7 @@ exports.crearTramite = async (req, res) => {
     const worker = await getTesseractWorker();
 
     if (archivo.mimetype === 'application/pdf') {
-      // ✅ Manejar PDF
+      //  Manejar PDF
       console.log('📄 Archivo PDF detectado. Convirtiendo a imagen...');
       try {
         const { fromPath } = require('pdf2pic');
@@ -161,7 +161,7 @@ exports.crearTramite = async (req, res) => {
         };
 
         const convert = fromPath(archivo.path, options);
-        const result = await convert(1); // Convierte solo la primera página
+        const result = await convert(1); 
         const imagePath = result.path;
 
         const { data: { text } } = await worker.recognize(imagePath);
@@ -171,7 +171,7 @@ exports.crearTramite = async (req, res) => {
         return res.status(400).json({ error: 'No se pudo procesar el archivo PDF' });
       }
     } else {
-      // ✅ Manejar imagen directamente
+      //  Manejar imagen directamente
       const { data: { text } } = await worker.recognize(archivo.path);
       textoOCR = text.trim();
     }
@@ -193,7 +193,7 @@ exports.crearTramite = async (req, res) => {
       [ciudadano_id, tipo_tramite_id, archivo.filename, textoOCR, prioridad]
     );
 
-    // ✅ ENVIAR NOTIFICACIÓN REAL
+    //  ENVIAR NOTIFICACIÓN REAL
     await enviarNotificacionEmail(ciudadano_id, result.insertId, 'recibido', null, tipo_tramite, prioridad);
 
     res.status(201).json({
@@ -253,7 +253,7 @@ exports.actualizarEstado = async (req, res) => {
       [estado, observaciones || null, id]
     );
 
-    // ✅ ENVIAR NOTIFICACIÓN REAL
+    //  ENVIAR NOTIFICACIÓN 
     await enviarNotificacionEmail(ciudadanoId, id, estado, observaciones);
 
     res.json({ message: 'Estado actualizado correctamente' });

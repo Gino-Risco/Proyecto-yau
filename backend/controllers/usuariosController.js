@@ -89,7 +89,7 @@ exports.cambiarEstado = async (req, res) => {
 // 5. Reiniciar contraseña
 exports.reiniciarPassword = async (req, res) => {
   const { id } = req.params;
-  const passwordTemporal = 'Yau2025!'; // Contraseña temporal estándar
+  const passwordTemporal = 'Yau2025!'; 
 
   try {
     const hashed = await bcrypt.hash(passwordTemporal, 10);

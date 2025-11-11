@@ -80,7 +80,7 @@ export default function DetalleTramite() {
     <Container className="py-4" style={{ maxWidth: '900px' }}>
       <Card className="shadow-sm border-0 mb-4">
         <Card.Body className="text-center">
-          <h3 className="fw-bold mb-2">📋 Detalle del Trámite #{tramite.id}</h3>
+          <h3 className="fw-bold mb-2"> Detalle del Trámite #{tramite.id}</h3>
           <p className="text-muted mb-0">Revisión y gestión administrativa del expediente</p>
         </Card.Body>
       </Card>

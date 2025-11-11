@@ -7,14 +7,14 @@ const db = require('../config/db');
 const router = express.Router();
 
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body; // ✅ Ahora usa "email"
+    const { email, password } = req.body; 
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
     }
 
     try {
-        // Buscar por email (no por DNI)
+        // Buscar por email 
         const [rows] = await db.execute('SELECT * FROM usuarios WHERE email = ? AND estado = "activo"', [email]);
 
         if (rows.length === 0) {
